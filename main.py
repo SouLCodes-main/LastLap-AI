@@ -3,18 +3,18 @@ import math
 
 pygame.init()
 
-#--------------DISPLAY-------------------------------------
+#--------------DISPLAY-----------------------------------------------------------------------
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Last Lap")
 
-#-----------VISUAL ELEMENTS--------------------------------
+#-----------VISUAL ELEMENTS------------------------------------------------------------------
 car_color = (0, 200, 0)
 bg_color = (18, 18, 18)
 panel_bg = (40, 40, 40)
 sensor_color = (200, 200, 200)
 obst_color = (255, 60, 60)
 
-# ----------CAR PARAMETERS---------------------------------
+# ----------CAR PARAMETERS-------------------------------------------------------------------
 car_w, car_h = 45, 20
 max_speed = 250
 max_accel = 600
@@ -22,6 +22,42 @@ brake_force = 4
 friction = 200
 max_steer_rate = math.radians(160)
 steer_smoothing = 8
+
+#-----------SENSOR PARAMS---------------------------------------------------------------------
+max_sensor_dist = 200
+sensor_angles = [-math.pi/3, -math.pi/6, 0.0, math.pi/6, math.pi/3]
+sensor_step = 5
+
+#-----------HELPER FUNCTIONS------------------------------------------------------------------
+def point_to_segment_dist(px, py, ax, ay, bx, by):
+    vx, vy = px - ax, py - ay
+    ux, uy = bx -ax, by - ay
+    seg_len2 = ux*ux + uy*uy
+
+    # If the segment is just a point
+    if seg_len2 == 0:
+        return math.hypot(vx, vy)
+
+    t = max(0.0, min(1.0, (vx*ux + vy*uy) / seg_len2))
+    projx = ax + t * ux
+    projy = ay + t * uy
+    return math.hypot(px-projx, py-projy)
+
+def cast_ray(origin, angle, obstacle):
+    ox, oy = origin
+    dx, dy = math.cos(angle), math.sin(angle)
+
+    for d in range(0, max_sensor_dist, sensor_step):
+        px = ox + dx * d
+        py = oy + dy * d
+
+        if px < 0 or px > 800 or py < 0 or py > 600:
+            return d
+        for i in range(0, len(obstacle) - 1, 2):
+            if point_to_segment_dist(px, py, obstacle[i][0], obstacle[i][1],obstacle[i+1][0], obstacle[i+1][1]) < 2:
+                return d
+
+    return max_sensor_dist # no collision  
 
 class Car:
     def __init__(self):
@@ -71,6 +107,8 @@ def main():
     score = 0
     high_score = 0
     game_over = False
+    show_sensor = True
+    obstacles = []
 
     while running:
         dt = clock.tick(60) / 1000.0
@@ -81,6 +119,9 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_v:
+                    show_sensor = not show_sensor
 
         # iNPUT MANAGEMENT
         keys = pygame.key.get_pressed()
@@ -103,6 +144,21 @@ def main():
             if dist > 1.0:
                 score += 1
                 high_score = max(score, high_score)
+
+        # Draw Sensor
+        if show_sensor and not game_over:
+            for a in sensor_angles:
+                d = cast_ray((car.x, car.y), car.angle + a, obstacles)
+                end_x = car.x + math.cos(car.angle + a) * d
+                end_y = car.y + math.sin(car.angle + a) * d
+                pygame.draw.line(screen, sensor_color, (car.x, car.y), (end_x, end_y), 1)
+                pygame.draw.circle(
+                    screen,
+                    sensor_color,
+                    (int(end_x), int(end_y)),
+                    3,
+                )
+
 
         pygame.display.flip()
 
