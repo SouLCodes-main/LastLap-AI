@@ -2,6 +2,7 @@ import pygame
 import math
 import os
 import neat
+import pickle
 
 pygame.init()
 
@@ -213,6 +214,13 @@ def run_neat(config_path):
     # Run for up to 50 generations
     winner = p.run(eval_genomes, 50)
     print('\nBest genome:\n{!s}'.format(winner))
+
+    winner = p.run(eval_genomes, 50)
+    print('\nBest genome:\n{!s}'.format(winner))
+
+    # Save the winner to a binary file
+    with open("winner.pkl", "wb") as f:
+        pickle.dump(winner, f)
 
 if __name__ == "__main__":
     local_dir = os.path.dirname(__file__)
