@@ -4,7 +4,8 @@ import math
 pygame.init()
 
 #--------------DISPLAY-----------------------------------------------------------------------
-screen = pygame.display.set_mode((800, 600))
+SCREEN_WIDTH, SCREEN_HEIGHT = 4000, 3000
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Last Lap")
 
 #-----------VISUAL ELEMENTS------------------------------------------------------------------
@@ -51,7 +52,7 @@ def cast_ray(origin, angle, obstacle):
         px = ox + dx * d
         py = oy + dy * d
 
-        if px < 0 or px > 800 or py < 0 or py > 600:
+        if px < 0 or px > SCREEN_WIDTH or py < 0 or py > SCREEN_HEIGHT:
             return d
         for i in range(0, len(obstacle) - 1, 2):
             if point_to_segment_dist(px, py, obstacle[i][0], obstacle[i][1],obstacle[i+1][0], obstacle[i+1][1]) < 2:
@@ -113,7 +114,11 @@ def main():
     while running:
         dt = clock.tick(60) / 1000.0
         screen.fill(bg_color)
-        pygame.draw.rect(screen, panel_bg, rect=(0, 600, 800, 120))
+        pygame.draw.rect(
+            screen,
+            panel_bg,
+            rect=(0, SCREEN_HEIGHT - 120, SCREEN_WIDTH, 120),
+        )
         car.draw(screen)
 
         for event in pygame.event.get():
