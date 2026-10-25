@@ -1,0 +1,4 @@
+Add collision detection
+Add circuit maps
+Build the learning model
+Train the model
