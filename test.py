@@ -48,8 +48,8 @@ def cast_ray(origin, angle, track_surface):
 
 class Car:
     def __init__(self):
-        self.x = 2800
-        self.y = 1900
+        self.x = 2600
+        self.y = 1850
         self.angle = 0
         self.speed = 0
         self.angular_velocity = 0
@@ -162,5 +162,5 @@ if __name__ == "__main__":
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config.txt')
     model_path = os.path.join(local_dir, 'winner.pkl')
-    track_path = os.path.join(local_dir, 'test_circuit.png')
+    track_path = os.path.join(local_dir, 'circuit.png')
     test_model(config_path, model_path, track_path)
